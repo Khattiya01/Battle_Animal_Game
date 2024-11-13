@@ -13,7 +13,6 @@ import { openAPIRouter } from '@api-docs/openAPIRouter';
 import { authRouter } from '@modules/auth/authRouter';
 import { initializeRedisClient } from '@common/middleware/redis';
 import { roomRouter } from '@modules/room/roomRouter';
-import { messageRouter } from '@modules/message/messageRouter';
 import axios from 'axios';
 import { getMessageByRoomId } from '@common/utils/services/api.service';
 import { roomService } from '@modules/room/roomService';
@@ -43,7 +42,6 @@ app.use(rateLimiter);
 app.use('/v1/user', userRouter);
 app.use('/v1/auth', authRouter);
 app.use('/v1/room', roomRouter);
-app.use('/v1/message', messageRouter);
 
 // sockets
 
