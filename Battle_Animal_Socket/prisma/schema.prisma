@@ -1,0 +1,59 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum RoomStatus {
+    ACTIVE      // ห้องที่สามารถเข้าร่วมได้
+    FULL        // ห้องที่มีผู้เล่นครบแล้ว
+    CLOSED      // ห้องที่ปิดแล้ว
+    IN_GAME     // ห้องที่กำลังอยู่ในเกม
+}
+
+model User {
+    UserID     String   @id() @default(uuid()) @db.Uuid
+    Username   String?  @unique() @db.VarChar(255)
+    Email      String?  @unique() @db.VarChar(255)
+    Password   String?  @db.VarChar(255)
+    FirstName  String   @default("member") @db.VarChar(255)
+    LastName   String?  @db.VarChar(255)
+    Tel        String?  @db.VarChar(20)
+    Role       Int      @db.SmallInt
+    CreatedAt  DateTime @default(now())
+    UpdatedAt  DateTime @updatedAt()
+
+    Room       Room[]       @relation(name: "Room")
+    Message    Message[]
+}
+
+model Room {
+    id             String    @id @default(uuid()) @db.Uuid
+    roomName       String    @unique()
+    createdBy      String    @db.Uuid
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt()
+    status         RoomStatus  @default(ACTIVE)
+    maxUsers       Int         @default(2)
+    currentUsers   Int         @default(0)
+    isPrivate      Boolean     @default(false) // true=ห้องส่วนตัว
+
+    messages       Message[]
+    users     User      @relation(name: "Room", fields: [createdBy], references: [UserID])
+}
+
+
+model Message {
+    id        String   @id @default(uuid()) @db.Uuid
+    content   String
+    roomId    String   @db.Uuid
+    UserID    String   @db.Uuid
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+
+    room Room @relation(fields: [roomId], references: [id])
+    user User @relation(fields: [UserID], references: [UserID])
+}
