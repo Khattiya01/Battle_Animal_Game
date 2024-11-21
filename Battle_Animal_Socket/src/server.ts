@@ -48,6 +48,11 @@ app.use('/v1/message', messageRouter);
 // sockets
 
 // local data socket
+enum statusRoom {
+  Waiting,
+  Starting,
+  Ended,
+}
 type room = {
   id: string;
   clients: client[];
@@ -119,10 +124,16 @@ io.on('connection', (socket) => {
       };
       roomService.updateUserJoinRoom(room.id);
       socket.broadcast.emit('room-user-count-updated', roomUserCountUpdate);
-      console.log('room' + room.id);
-      console.log('currentRoomId' + currentRoomId);
-      console.log('currentUser.name' + currentUser.name);
+
       io.to(currentRoomId).emit('other-player-joined', currentUser);
+
+      if (room.clients.length === 2) {
+        const manageRoom = {
+          statusRoom: statusRoom.Starting,
+          playerNameWinner: '',
+        };
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
+      }
     } else {
       console.log('No room found');
     }
@@ -142,7 +153,7 @@ io.on('connection', (socket) => {
     } else {
       console.log('No room found');
     }
-  }); 
+  });
 
   socket.on('player-power-scale', async (data) => {
     console.log(currentUser.name + ' recv: player-power-scale' + data);
@@ -178,6 +189,14 @@ io.on('connection', (socket) => {
         if (client.name === objectData.targetName) {
           indexDamage = index;
           client.health -= objectData.totalDamage;
+
+          if (client.health <= 0) {
+            const manageRoom = {
+              statusRoom: statusRoom.Ended,
+              playerNameLoser: client.name,
+            };
+            io.to(room.id).emit('change-status-room', manageRoom);
+          }
         }
         return client;
       });
@@ -203,20 +222,26 @@ io.on('connection', (socket) => {
     if (currentRoomId && room) {
       io.to(currentRoomId).emit('other-player-disconnected', currentUser);
       socket.leave(currentRoomId);
-      console.log(currentUser.name + ' bcst: other player disconnect' + JSON.stringify(currentUser));
-      console.log('room', room);
       for (let i = 0; i < room.clients.length; i++) {
         if (room.clients[i].name === currentUser.name) {
           roomService.updateUserLeaveRoom(room.id);
           room.clients.splice(i, 1);
         }
       }
+
+      if (room.clients.length < 2) {
+        const manageRoom = {
+          statusRoom: statusRoom.Waiting,
+          playerNameWinner: '',
+        };
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
+      }
+
       const roomUserCountUpdate = {
         roomId: room.id,
         newUserCount: room.clients.length,
       };
       socket.broadcast.emit('room-user-count-updated', roomUserCountUpdate);
-      console.log('room', room);
     }
   });
 
@@ -226,12 +251,19 @@ io.on('connection', (socket) => {
     if (currentRoomId && room) {
       io.to(currentRoomId).emit('other-player-disconnected', currentUser);
       socket.leave(currentRoomId);
-      console.log(currentUser.name + ' bcst: other player disconnect' + JSON.stringify(currentUser));
       for (let i = 0; i < room.clients.length; i++) {
         if (room.clients[i].name === currentUser.name) {
           roomService.updateUserLeaveRoom(room.id);
           room.clients.splice(i, 1);
         }
+      }
+
+      if (room.clients.length < 2) {
+        const manageRoom = {
+          statusRoom: statusRoom.Waiting,
+          playerNameWinner: '',
+        };
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
       }
     }
   });

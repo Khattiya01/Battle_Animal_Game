@@ -35,7 +35,7 @@ const MyGame = () => {
     if (socketRef.current) {
       const socket = socketRef.current;
 
-      const handleMessage = (event) => {
+      const handleMessage = (event: any) => {
         if (event.data.type === "GET_TOKEN") {
           console.log("GET_TOKEN");
           getTokenFromLocalStorage();
@@ -131,6 +131,13 @@ const MyGame = () => {
       OtherPlayerDisconnected(JSON.stringify(response));
     });
 
+    socket.on("change-status-room", (response) => {
+      console.log(
+        " recv: change-status-room" + JSON.stringify(response)
+      );
+      ChangeStatusRoom(JSON.stringify(response));
+    });
+
     return () => {
       // ทำการ cleanup listeners ตอนที่ component ถูก unmount
       socket.off("room-added");
@@ -140,6 +147,7 @@ const MyGame = () => {
       socket.off("player-shoot");
       socket.off("player-Decrease-health");
       socket.off("other-player-disconnected");
+      socket.off("change-status-room");
     };
   }, []);
 
@@ -234,6 +242,16 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "GET_HAS_CONNECT_TO_WEB", value: unityConnected },
+        "*"
+      );
+    }
+  };
+
+  const ChangeStatusRoom = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "CHANGE_STATUS_ROOM", value: value },
         "*"
       );
     }
