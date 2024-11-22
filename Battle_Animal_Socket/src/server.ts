@@ -51,11 +51,14 @@ app.use('/v1/message', messageRouter);
 enum statusRoom {
   Waiting,
   Starting,
+  ChangingPlayerControl,
   Ended,
 }
 type room = {
   id: string;
   clients: client[];
+  statusRoom: statusRoom;
+  currentlyPlayingPlayerName: string;
 };
 type client = {
   name: string;
@@ -85,7 +88,7 @@ io.on('connection', (socket) => {
     let room = rooms.find((r) => r.id === roomId);
 
     if (!room) {
-      room = { id: roomId, clients: [] }; // สร้างห้องใหม่หากไม่พบ
+      room = { id: roomId, clients: [], statusRoom: statusRoom.Waiting, currentlyPlayingPlayerName: '' }; // สร้างห้องใหม่หากไม่พบ
       rooms.push(room);
     }
 
@@ -128,9 +131,17 @@ io.on('connection', (socket) => {
       io.to(currentRoomId).emit('other-player-joined', currentUser);
 
       if (room.clients.length === 2) {
-        const manageRoom = {
+        room.statusRoom = statusRoom.Starting;
+        room.currentlyPlayingPlayerName = room.clients[0].name;
+
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
           statusRoom: statusRoom.Starting,
-          playerNameWinner: '',
+          playerNameLoser: '',
+          playerNamePlaying: room.clients[0].name,
         };
         io.to(currentRoomId).emit('change-status-room', manageRoom);
       }
@@ -191,9 +202,14 @@ io.on('connection', (socket) => {
           client.health -= objectData.totalDamage;
 
           if (client.health <= 0) {
-            const manageRoom = {
+            const manageRoom: {
+              statusRoom: statusRoom;
+              playerNameLoser: string;
+              playerNamePlaying: string;
+            } = {
               statusRoom: statusRoom.Ended,
               playerNameLoser: client.name,
+              playerNamePlaying: '',
             };
             io.to(room.id).emit('change-status-room', manageRoom);
           }
@@ -216,6 +232,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('change-player-control', () => {
+    console.log(currentUser.name + ' recv: change-player-control');
+    const room = rooms.find((r) => r.id === currentRoomId);
+    if (room && currentRoomId) {
+      room.currentlyPlayingPlayerName = getNextPlayerName(room.currentlyPlayingPlayerName, room.clients);
+
+      const manageRoom: {
+        statusRoom: statusRoom;
+        playerNameLoser: string;
+        playerNamePlaying: string;
+      } = {
+        statusRoom: statusRoom.ChangingPlayerControl,
+        playerNameLoser: '',
+        playerNamePlaying: room.currentlyPlayingPlayerName,
+      };
+      io.to(currentRoomId).emit('change-status-room', manageRoom);
+    } else {
+      console.log('No room found');
+    }
+  });
+
   socket.on('player-leave-room', () => {
     console.log(currentUser.name + ' recv: player-leave-room');
     const room = rooms.find((r) => r.id === currentRoomId);
@@ -230,9 +267,14 @@ io.on('connection', (socket) => {
       }
 
       if (room.clients.length < 2) {
-        const manageRoom = {
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
           statusRoom: statusRoom.Waiting,
-          playerNameWinner: '',
+          playerNameLoser: '',
+          playerNamePlaying: '',
         };
         io.to(currentRoomId).emit('change-status-room', manageRoom);
       }
@@ -259,9 +301,14 @@ io.on('connection', (socket) => {
       }
 
       if (room.clients.length < 2) {
-        const manageRoom = {
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
           statusRoom: statusRoom.Waiting,
-          playerNameWinner: '',
+          playerNameLoser: '',
+          playerNamePlaying: '',
         };
         io.to(currentRoomId).emit('change-status-room', manageRoom);
       }
@@ -272,6 +319,17 @@ io.on('connection', (socket) => {
     console.log('test-room', res);
   });
 });
+
+function getNextPlayerName(currentPlayerName: string, clients: client[]) {
+  // หา index ของผู้เล่นที่กำลังเล่นอยู่ใน players
+  const currentIndex = clients.findIndex((player) => player.name === currentPlayerName);
+
+  // หา index ของผู้เล่นคนถัดไป (วนกลับไปคนแรกถ้าถึงคนสุดท้าย)
+  const nextIndex = (currentIndex + 1) % clients.length;
+
+  // คืนค่าชื่อของผู้เล่นคนถัดไป
+  return clients[nextIndex].name;
+}
 
 // Swagger UI
 app.use(openAPIRouter);

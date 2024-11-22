@@ -70,6 +70,10 @@ const MyGame = () => {
           console.log("PLAYER_DECREASE_HEALTH", event.data.value);
           socket.emit("player-Decrease-health", event.data.value);
         }
+        if (event.data.type === "CHANGE_PLAYER_CONTROL") {
+          console.log("CHANGE_PLAYER_CONTROL", event.data.value);
+          socket.emit("change-player-control", event.data.value);
+        }
         if (event.data.type === "PLAYER_LEAVE_ROOM") {
           console.log("PLAYER_LEAVE_ROOM", event.data.value);
           socket.emit("player-leave-room", event.data.value);
