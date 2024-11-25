@@ -36,6 +36,10 @@ const MyGame = () => {
       const socket = socketRef.current;
 
       const handleMessage = (event: any) => {
+        if (event.data.type === "GET_API_URL") {
+          console.log("GET_API_URL");
+          getAPIURL();
+        }
         if (event.data.type === "GET_TOKEN") {
           console.log("GET_TOKEN");
           getTokenFromLocalStorage();
@@ -90,9 +94,10 @@ const MyGame = () => {
 
   useEffect(() => {
     console.log("socket is not connected", socketRef.current);
+    const APIURL = process.env.NEXT_PUBLIC_API_URL;
 
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:8081"); // Replace with your server URL
+      socketRef.current = io(APIURL); // Replace with your server URL
       console.log("socket is connected", socketRef.current);
     }
 
@@ -136,9 +141,7 @@ const MyGame = () => {
     });
 
     socket.on("change-status-room", (response) => {
-      console.log(
-        " recv: change-status-room" + JSON.stringify(response)
-      );
+      console.log(" recv: change-status-room" + JSON.stringify(response));
       ChangeStatusRoom(JSON.stringify(response));
     });
 
@@ -221,6 +224,17 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "PLAYER_DECREASE_HEALTH", value: value },
+        "*"
+      );
+    }
+  };
+
+  const getAPIURL = () => {
+    const APIURL = process.env.NEXT_PUBLIC_API_URL;
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "GET_API_URL", value: APIURL },
         "*"
       );
     }

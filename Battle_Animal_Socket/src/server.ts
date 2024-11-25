@@ -47,6 +47,8 @@ app.use('/v1/message', messageRouter);
 
 // sockets
 
+const TURN_TIME_LIMIT = 10; // กำหนดเวลาต่อเทิร์น (วินาที)
+
 // local data socket
 enum statusRoom {
   Waiting,
@@ -143,7 +145,23 @@ io.on('connection', (socket) => {
           playerNameLoser: '',
           playerNamePlaying: room.clients[0].name,
         };
+
         io.to(currentRoomId).emit('change-status-room', manageRoom);
+
+        // Countdown logic
+        // let countdownTime = 10; // Initial countdown time
+        // const countdownInterval = setInterval(() => {
+        //   const timeRoom = { countDownTime: countdownTime };
+        //   if (currentRoomId) {
+        //     io.to(currentRoomId).emit('count-time-room', timeRoom);
+        //   }
+
+        //   countdownTime -= 1;
+
+        //   if (countdownTime < 0) {
+        //     clearInterval(countdownInterval); // Stop the interval after 10 seconds
+        //   }
+        // }, 1000);
       }
     } else {
       console.log('No room found');
@@ -319,6 +337,38 @@ io.on('connection', (socket) => {
     console.log('test-room', res);
   });
 });
+
+// function startTurn(roomId: ) {
+//   const room = rooms[roomId];
+//   if (!room) return;
+
+//   // สลับตาผู้เล่น
+//   const nextPlayerIndex = room.currentTurn ? (room.players.indexOf(room.currentTurn) + 1) % room.players.length : 0;
+//   room.currentTurn = room.players[nextPlayerIndex];
+
+//   // Broadcast ว่าใครเป็นคนเล่น
+//   io.to(roomId).emit('turn-start', {
+//     playerId: room.currentTurn,
+//     timeLimit: TURN_TIME_LIMIT,
+//   });
+
+//   // เริ่มนับเวลา
+//   let timeLeft = TURN_TIME_LIMIT;
+
+//   room.countdown = setInterval(() => {
+//     timeLeft--;
+
+//     // ส่งเวลาให้ทุกคนในห้อง
+//     io.to(roomId).emit('countdown', { timeLeft });
+
+//     // ถ้าหมดเวลา เปลี่ยนตา
+//     if (timeLeft <= 0) {
+//       clearInterval(room.countdown);
+//       console.log(`Player ${room.currentTurn} ran out of time!`);
+//       startTurn(roomId);
+//     }
+//   }, 1000);
+// }
 
 function getNextPlayerName(currentPlayerName: string, clients: client[]) {
   // หา index ของผู้เล่นที่กำลังเล่นอยู่ใน players
