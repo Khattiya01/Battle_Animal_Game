@@ -35,7 +35,11 @@ const MyGame = () => {
     if (socketRef.current) {
       const socket = socketRef.current;
 
-      const handleMessage = (event) => {
+      const handleMessage = (event: any) => {
+        if (event.data.type === "GET_API_URL") {
+          console.log("GET_API_URL");
+          getAPIURL();
+        }
         if (event.data.type === "GET_TOKEN") {
           console.log("GET_TOKEN");
           getTokenFromLocalStorage();
@@ -70,6 +74,10 @@ const MyGame = () => {
           console.log("PLAYER_DECREASE_HEALTH", event.data.value);
           socket.emit("player-Decrease-health", event.data.value);
         }
+        if (event.data.type === "CHANGE_PLAYER_CONTROL") {
+          console.log("CHANGE_PLAYER_CONTROL", event.data.value);
+          socket.emit("change-player-control", event.data.value);
+        }
         if (event.data.type === "PLAYER_LEAVE_ROOM") {
           console.log("PLAYER_LEAVE_ROOM", event.data.value);
           socket.emit("player-leave-room", event.data.value);
@@ -86,9 +94,10 @@ const MyGame = () => {
 
   useEffect(() => {
     console.log("socket is not connected", socketRef.current);
+    const APIURL = process.env.NEXT_PUBLIC_API_URL;
 
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:8081"); // Replace with your server URL
+      socketRef.current = io(APIURL); // Replace with your server URL
       console.log("socket is connected", socketRef.current);
     }
 
@@ -131,6 +140,11 @@ const MyGame = () => {
       OtherPlayerDisconnected(JSON.stringify(response));
     });
 
+    socket.on("change-status-room", (response) => {
+      console.log(" recv: change-status-room" + JSON.stringify(response));
+      ChangeStatusRoom(JSON.stringify(response));
+    });
+
     return () => {
       // ทำการ cleanup listeners ตอนที่ component ถูก unmount
       socket.off("room-added");
@@ -140,6 +154,7 @@ const MyGame = () => {
       socket.off("player-shoot");
       socket.off("player-Decrease-health");
       socket.off("other-player-disconnected");
+      socket.off("change-status-room");
     };
   }, []);
 
@@ -214,6 +229,17 @@ const MyGame = () => {
     }
   };
 
+  const getAPIURL = () => {
+    const APIURL = process.env.NEXT_PUBLIC_API_URL;
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "GET_API_URL", value: APIURL },
+        "*"
+      );
+    }
+  };
+
   const getTokenFromLocalStorage = () => {
     const token = localStorage.getItem("token");
     const iframe = document.querySelector("iframe");
@@ -234,6 +260,16 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "GET_HAS_CONNECT_TO_WEB", value: unityConnected },
+        "*"
+      );
+    }
+  };
+
+  const ChangeStatusRoom = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "CHANGE_STATUS_ROOM", value: value },
         "*"
       );
     }

@@ -46,10 +46,20 @@ app.use('/v1/message', messageRouter);
 
 // sockets
 
+const TURN_TIME_LIMIT = 10; // กำหนดเวลาต่อเทิร์น (วินาที)
+
 // local data socket
+enum statusRoom {
+  Waiting,
+  Starting,
+  ChangingPlayerControl,
+  Ended,
+}
 type room = {
   id: string;
   clients: client[];
+  statusRoom: statusRoom;
+  currentlyPlayingPlayerName: string;
 };
 type client = {
   name: string;
@@ -79,7 +89,7 @@ io.on('connection', (socket) => {
     let room = rooms.find((r) => r.id === roomId);
 
     if (!room) {
-      room = { id: roomId, clients: [] }; // สร้างห้องใหม่หากไม่พบ
+      room = { id: roomId, clients: [], statusRoom: statusRoom.Waiting, currentlyPlayingPlayerName: '' }; // สร้างห้องใหม่หากไม่พบ
       rooms.push(room);
     }
 
@@ -118,10 +128,40 @@ io.on('connection', (socket) => {
       };
       roomService.updateUserJoinRoom(room.id);
       socket.broadcast.emit('room-user-count-updated', roomUserCountUpdate);
-      console.log('room' + room.id);
-      console.log('currentRoomId' + currentRoomId);
-      console.log('currentUser.name' + currentUser.name);
+
       io.to(currentRoomId).emit('other-player-joined', currentUser);
+
+      if (room.clients.length === 2) {
+        room.statusRoom = statusRoom.Starting;
+        room.currentlyPlayingPlayerName = room.clients[0].name;
+
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
+          statusRoom: statusRoom.Starting,
+          playerNameLoser: '',
+          playerNamePlaying: room.clients[0].name,
+        };
+
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
+
+        // Countdown logic
+        // let countdownTime = 10; // Initial countdown time
+        // const countdownInterval = setInterval(() => {
+        //   const timeRoom = { countDownTime: countdownTime };
+        //   if (currentRoomId) {
+        //     io.to(currentRoomId).emit('count-time-room', timeRoom);
+        //   }
+
+        //   countdownTime -= 1;
+
+        //   if (countdownTime < 0) {
+        //     clearInterval(countdownInterval); // Stop the interval after 10 seconds
+        //   }
+        // }, 1000);
+      }
     } else {
       console.log('No room found');
     }
@@ -141,7 +181,7 @@ io.on('connection', (socket) => {
     } else {
       console.log('No room found');
     }
-  }); 
+  });
 
   socket.on('player-power-scale', async (data) => {
     console.log(currentUser.name + ' recv: player-power-scale' + data);
@@ -177,6 +217,19 @@ io.on('connection', (socket) => {
         if (client.name === objectData.targetName) {
           indexDamage = index;
           client.health -= objectData.totalDamage;
+
+          if (client.health <= 0) {
+            const manageRoom: {
+              statusRoom: statusRoom;
+              playerNameLoser: string;
+              playerNamePlaying: string;
+            } = {
+              statusRoom: statusRoom.Ended,
+              playerNameLoser: client.name,
+              playerNamePlaying: '',
+            };
+            io.to(room.id).emit('change-status-room', manageRoom);
+          }
         }
         return client;
       });
@@ -196,26 +249,58 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('change-player-control', () => {
+    console.log(currentUser.name + ' recv: change-player-control');
+    const room = rooms.find((r) => r.id === currentRoomId);
+    if (room && currentRoomId) {
+      room.currentlyPlayingPlayerName = getNextPlayerName(room.currentlyPlayingPlayerName, room.clients);
+
+      const manageRoom: {
+        statusRoom: statusRoom;
+        playerNameLoser: string;
+        playerNamePlaying: string;
+      } = {
+        statusRoom: statusRoom.ChangingPlayerControl,
+        playerNameLoser: '',
+        playerNamePlaying: room.currentlyPlayingPlayerName,
+      };
+      io.to(currentRoomId).emit('change-status-room', manageRoom);
+    } else {
+      console.log('No room found');
+    }
+  });
+
   socket.on('player-leave-room', () => {
     console.log(currentUser.name + ' recv: player-leave-room');
     const room = rooms.find((r) => r.id === currentRoomId);
     if (currentRoomId && room) {
       io.to(currentRoomId).emit('other-player-disconnected', currentUser);
       socket.leave(currentRoomId);
-      console.log(currentUser.name + ' bcst: other player disconnect' + JSON.stringify(currentUser));
-      console.log('room', room);
       for (let i = 0; i < room.clients.length; i++) {
         if (room.clients[i].name === currentUser.name) {
           roomService.updateUserLeaveRoom(room.id);
           room.clients.splice(i, 1);
         }
       }
+
+      if (room.clients.length < 2) {
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
+          statusRoom: statusRoom.Waiting,
+          playerNameLoser: '',
+          playerNamePlaying: '',
+        };
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
+      }
+
       const roomUserCountUpdate = {
         roomId: room.id,
         newUserCount: room.clients.length,
       };
       socket.broadcast.emit('room-user-count-updated', roomUserCountUpdate);
-      console.log('room', room);
     }
   });
 
@@ -225,12 +310,24 @@ io.on('connection', (socket) => {
     if (currentRoomId && room) {
       io.to(currentRoomId).emit('other-player-disconnected', currentUser);
       socket.leave(currentRoomId);
-      console.log(currentUser.name + ' bcst: other player disconnect' + JSON.stringify(currentUser));
       for (let i = 0; i < room.clients.length; i++) {
         if (room.clients[i].name === currentUser.name) {
           roomService.updateUserLeaveRoom(room.id);
           room.clients.splice(i, 1);
         }
+      }
+
+      if (room.clients.length < 2) {
+        const manageRoom: {
+          statusRoom: statusRoom;
+          playerNameLoser: string;
+          playerNamePlaying: string;
+        } = {
+          statusRoom: statusRoom.Waiting,
+          playerNameLoser: '',
+          playerNamePlaying: '',
+        };
+        io.to(currentRoomId).emit('change-status-room', manageRoom);
       }
     }
   });
@@ -239,6 +336,49 @@ io.on('connection', (socket) => {
     console.log('test-room', res);
   });
 });
+
+// function startTurn(roomId: ) {
+//   const room = rooms[roomId];
+//   if (!room) return;
+
+//   // สลับตาผู้เล่น
+//   const nextPlayerIndex = room.currentTurn ? (room.players.indexOf(room.currentTurn) + 1) % room.players.length : 0;
+//   room.currentTurn = room.players[nextPlayerIndex];
+
+//   // Broadcast ว่าใครเป็นคนเล่น
+//   io.to(roomId).emit('turn-start', {
+//     playerId: room.currentTurn,
+//     timeLimit: TURN_TIME_LIMIT,
+//   });
+
+//   // เริ่มนับเวลา
+//   let timeLeft = TURN_TIME_LIMIT;
+
+//   room.countdown = setInterval(() => {
+//     timeLeft--;
+
+//     // ส่งเวลาให้ทุกคนในห้อง
+//     io.to(roomId).emit('countdown', { timeLeft });
+
+//     // ถ้าหมดเวลา เปลี่ยนตา
+//     if (timeLeft <= 0) {
+//       clearInterval(room.countdown);
+//       console.log(`Player ${room.currentTurn} ran out of time!`);
+//       startTurn(roomId);
+//     }
+//   }, 1000);
+// }
+
+function getNextPlayerName(currentPlayerName: string, clients: client[]) {
+  // หา index ของผู้เล่นที่กำลังเล่นอยู่ใน players
+  const currentIndex = clients.findIndex((player) => player.name === currentPlayerName);
+
+  // หา index ของผู้เล่นคนถัดไป (วนกลับไปคนแรกถ้าถึงคนสุดท้าย)
+  const nextIndex = (currentIndex + 1) % clients.length;
+
+  // คืนค่าชื่อของผู้เล่นคนถัดไป
+  return clients[nextIndex].name;
+}
 
 // Swagger UI
 app.use(openAPIRouter);
