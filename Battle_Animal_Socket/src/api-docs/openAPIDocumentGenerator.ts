@@ -3,7 +3,6 @@ import {
   OpenAPIRegistry,
 } from "@asteasolutions/zod-to-openapi";
 import { authRegistry } from "@modules/auth/authRouter";
-import { messageRegistry } from "@modules/message/messageRouter";
 import { roomRegistry } from "@modules/room/roomRouter";
 
 import { userRegistry } from "@modules/user/userRouter";
@@ -12,8 +11,7 @@ export function generateOpenAPIDocument() {
   const registry = new OpenAPIRegistry([
     authRegistry,
     userRegistry,
-    roomRegistry,
-    messageRegistry
+    roomRegistry
   ]);
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
