@@ -442,7 +442,7 @@ function getNextPlayerName(currentPlayerName: string, clients: client[]) {
 }
 
 // Swagger UI
-// app.use(openAPIRouter);
+app.use(openAPIRouter);
 
 // test
 app.use('/test', (req, res) => {
