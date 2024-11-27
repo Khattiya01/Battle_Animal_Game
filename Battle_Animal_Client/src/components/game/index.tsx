@@ -313,7 +313,7 @@ const MyGame = () => {
   return (
     <div className="w-screen h-screen relative">
       <iframe
-        src="/game/index.html"
+        src="/Game/index.html"
         width="100%"
         height="90%"
         style={{
