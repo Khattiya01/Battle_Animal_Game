@@ -12,13 +12,13 @@ const MyGame = () => {
   useEffect(() => {
     // Load Unity WebGL loader script
     const existingScript = document.querySelector(
-      'script[src="/game/build/unitywebgl.loader.js"]'
+      'script[src="/Game/Build/unitywebgl.loader.js"]'
     );
 
     if (!existingScript) {
       try {
         const script = document.createElement("script");
-        script.src = "/game/build/unitywebgl.loader.js";
+        script.src = "/Game/Build/unitywebgl.loader.js";
         script.async = true;
         document.body.appendChild(script);
 
@@ -56,6 +56,10 @@ const MyGame = () => {
           console.log("CHANGE_SCENE", event.data.value);
           // setScene(event.data.roomId)
           // socket.emit("player-join-room", event.data.currentRoomId);
+        }
+        if (event.data.type === "PLAYER_READY_ROOM") {
+          console.log("PLAYER_READY_ROOM", event.data.value);
+          socket.emit("player-ready-room", event.data.value);
         }
         if (event.data.type === "PLAYER_JOINT_ROOM") {
           console.log("PLAYER_JOINT_ROOM", event.data.value);
@@ -108,6 +112,11 @@ const MyGame = () => {
       AddRoom(JSON.stringify(response));
     });
 
+    socket.on("room-status-updated", (response) => {
+      console.log(" recv: room-status-updated" + JSON.stringify(response));
+      RoomStatusUpdate(JSON.stringify(response));
+    });
+
     socket.on("room-user-count-updated", (response) => {
       console.log(" recv: room-user-count-updated" + JSON.stringify(response));
       RoomUserCountUpdate(JSON.stringify(response));
@@ -145,9 +154,14 @@ const MyGame = () => {
       ChangeStatusRoom(JSON.stringify(response));
     });
 
+    socket.on("countdown-room", (response) => {
+      CountdownRoom(JSON.stringify(response));
+    });
+
     return () => {
       // ทำการ cleanup listeners ตอนที่ component ถูก unmount
       socket.off("room-added");
+      socket.off("room-status-updated");
       socket.off("room-user-count-updated");
       socket.off("player-join-room");
       socket.off("other-player-joined");
@@ -155,6 +169,7 @@ const MyGame = () => {
       socket.off("player-Decrease-health");
       socket.off("other-player-disconnected");
       socket.off("change-status-room");
+      socket.off("countdown-room");
     };
   }, []);
 
@@ -163,6 +178,16 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "ADD_ROOM", value: value },
+        "*"
+      );
+    }
+  };
+
+  const RoomStatusUpdate = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "ROOM_STATUS_UPDATE", value: value },
         "*"
       );
     }
@@ -270,6 +295,16 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "CHANGE_STATUS_ROOM", value: value },
+        "*"
+      );
+    }
+  };
+
+  const CountdownRoom = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "COUNTDOWN_ROOM", value: value },
         "*"
       );
     }

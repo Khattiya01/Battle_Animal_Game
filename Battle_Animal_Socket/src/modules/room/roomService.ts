@@ -50,29 +50,14 @@ export const roomService = {
     try {
       const checkRoom = await roomRepository.findByIdAsync(id);
       if (!checkRoom) {
-        return new ServiceResponse(
-          ResponseStatus.Failed,
-          "Room not found",
-          null,
-          StatusCodes.NOT_FOUND
-        );
+        return new ServiceResponse(ResponseStatus.Failed, 'Room not found', null, StatusCodes.NOT_FOUND);
       }
       const room = await roomRepository.updateUserJoinRoom(id);
-      return new ServiceResponse<Room>(
-        ResponseStatus.Success,
-        "Room found",
-        room,
-        StatusCodes.OK
-      );
+      return new ServiceResponse<Room>(ResponseStatus.Success, 'Room found', room, StatusCodes.OK);
     } catch (ex) {
       const errorMessage = `Error finding room with id ${id}:, ${(ex as Error).message}`;
       logger.error(errorMessage);
-      return new ServiceResponse(
-        ResponseStatus.Failed,
-        errorMessage,
-        null,
-        StatusCodes.INTERNAL_SERVER_ERROR
-      );
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
 
@@ -80,29 +65,29 @@ export const roomService = {
     try {
       const checkRoom = await roomRepository.findByIdAsync(id);
       if (!checkRoom) {
-        return new ServiceResponse(
-          ResponseStatus.Failed,
-          "Room not found",
-          null,
-          StatusCodes.NOT_FOUND
-        );
+        return new ServiceResponse(ResponseStatus.Failed, 'Room not found', null, StatusCodes.NOT_FOUND);
       }
       const room = await roomRepository.updateUserLeaveRoom(id);
-      return new ServiceResponse<Room>(
-        ResponseStatus.Success,
-        "Room found",
-        room,
-        StatusCodes.OK
-      );
+      return new ServiceResponse<Room>(ResponseStatus.Success, 'Room found', room, StatusCodes.OK);
     } catch (ex) {
       const errorMessage = `Error finding room with id ${id}:, ${(ex as Error).message}`;
       logger.error(errorMessage);
-      return new ServiceResponse(
-        ResponseStatus.Failed,
-        errorMessage,
-        null,
-        StatusCodes.INTERNAL_SERVER_ERROR
-      );
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  },
+
+  updateStatusRoom: async (id: string, statusRoom: 'Waiting' | 'Starting' | 'Ended') => {
+    try {
+      const checkRoom = await roomRepository.findByIdAsync(id);
+      if (!checkRoom) {
+        return new ServiceResponse(ResponseStatus.Failed, 'Room not found', null, StatusCodes.NOT_FOUND);
+      }
+      const room = await roomRepository.updateStatusRoom(id, statusRoom);
+      return new ServiceResponse<Room>(ResponseStatus.Success, 'Room found', room, StatusCodes.OK);
+    } catch (ex) {
+      const errorMessage = `Error finding room with id ${id}:, ${(ex as Error).message}`;
+      logger.error(errorMessage);
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
 

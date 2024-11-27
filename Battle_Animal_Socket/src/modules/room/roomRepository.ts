@@ -31,7 +31,6 @@ export const roomRepository = {
     return await paginate<Room, Prisma.RoomFindManyArgs>(
       prisma.room,
       {
-        // select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
         include: {
           messages: true,
           users: true,
@@ -57,16 +56,9 @@ export const roomRepository = {
         },
         users: true,
       },
-      // select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
     }) as Promise<Pick<Room, Key> | null>;
   },
 
-  // findByRoomNameAsync: async <Key extends keyof Room>(roomName: string, keys = Keys as Key[]) => {
-  //   return prisma.room.findUnique({
-  //     where: { roomName: roomName },
-  //     select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
-  //   }) as Promise<Pick<Room, Key> | null>;
-  // },
   create: async (userId: string, payload: TypeCreateRoom) => {
     const setPayload = {
       roomName: payload.body.roomName,
@@ -88,7 +80,6 @@ export const roomRepository = {
     });
   },
 
-  // ฟังก์ชันสำหรับผู้ใช้เข้าห้อง
   updateUserJoinRoom: async (id: string) => {
     return prisma.room.update({
       where: { id: id },
@@ -98,12 +89,20 @@ export const roomRepository = {
     });
   },
 
-  // ฟังก์ชันสำหรับผู้ใช้ออกจากห้อง
   updateUserLeaveRoom: async (id: string) => {
     return prisma.room.update({
       where: { id: id },
       data: {
         currentUsers: { decrement: 1 }, // ลดจำนวน currentUsers
+      },
+    });
+  },
+
+  updateStatusRoom: async (id: string, statusRoom: 'Waiting' | 'Starting' | 'Ended') => {
+    return prisma.room.update({
+      where: { id: id },
+      data: {
+        status: statusRoom,
       },
     });
   },

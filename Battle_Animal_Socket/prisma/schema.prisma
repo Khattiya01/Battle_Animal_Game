@@ -8,10 +8,9 @@ generator client {
 }
 
 enum RoomStatus {
-    ACTIVE      // ห้องที่สามารถเข้าร่วมได้
-    FULL        // ห้องที่มีผู้เล่นครบแล้ว
-    CLOSED      // ห้องที่ปิดแล้ว
-    IN_GAME     // ห้องที่กำลังอยู่ในเกม
+    Waiting    
+    Starting      
+    Ended     
 }
 
 model User {
@@ -36,7 +35,7 @@ model Room {
     createdBy      String    @db.Uuid
     createdAt      DateTime  @default(now())
     updatedAt      DateTime  @updatedAt()
-    status         RoomStatus  @default(ACTIVE)
+    status         RoomStatus  @default(Waiting)
     maxUsers       Int         @default(2)
     currentUsers   Int         @default(0)
     isPrivate      Boolean     @default(false) // true=ห้องส่วนตัว
