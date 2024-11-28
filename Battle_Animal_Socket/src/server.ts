@@ -19,6 +19,7 @@ import axios from 'axios';
 import { getMessageByRoomId } from '@common/utils/services/api.service';
 import { roomService } from '@modules/room/roomService';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { delay } from '@common/utils/delay';
 
 const logger = pino({ name: 'server start' });
 const app = express();
@@ -193,6 +194,9 @@ io.on('connection', (socket) => {
       };
       io.to(currentRoomId).emit('player-shoot', powerShoot);
       clearInterval(room.countdown);
+
+      await delay(3000);
+      startTurn(currentRoomId);
     } else {
       console.log('No room found');
     }
@@ -234,6 +238,8 @@ io.on('connection', (socket) => {
           client.health -= objectData.totalDamage;
 
           if (client.health <= 0) {
+            clearInterval(room.countdown);
+
             const manageRoom: {
               statusRoom: statusRoom;
               playerNameLoser: string;
@@ -343,7 +349,7 @@ function startTurn(currentRoomId: string) {
   if (!room) return;
 
   // สลับตาผู้เล่น
-  if (room.currentlyPlayingPlayerName) {
+  if (room?.currentlyPlayingPlayerName) {
     room.currentlyPlayingPlayerName = getNextPlayerName(room.currentlyPlayingPlayerName, room.clients);
 
     // Broadcast ว่าใครเป็นคนเล่น

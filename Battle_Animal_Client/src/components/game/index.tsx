@@ -12,13 +12,13 @@ const MyGame = () => {
   useEffect(() => {
     // Load Unity WebGL loader script
     const existingScript = document.querySelector(
-      'script[src="/Game/Build/unitywebgl.loader.js"]'
+      'script[src="/Game/Build/Build.loader.js"]'
     );
 
     if (!existingScript) {
       try {
         const script = document.createElement("script");
-        script.src = "/Game/Build/unitywebgl.loader.js";
+        script.src = "/Game/Build/Build.loader.js";
         script.async = true;
         document.body.appendChild(script);
 
