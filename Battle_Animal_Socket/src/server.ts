@@ -66,6 +66,7 @@ type room = {
   statusRoom: statusRoom;
   currentlyPlayingPlayerName: string | undefined;
   countdown: NodeJS.Timeout | undefined;
+  windforce: number;
 };
 type client = {
   name: string;
@@ -106,6 +107,7 @@ io.on('connection', (socket) => {
         statusRoom: statusRoom.Waiting,
         currentlyPlayingPlayerName: '',
         countdown: undefined,
+        windforce: 0,
       }; // สร้างห้องใหม่หากไม่พบ
       rooms.push(room);
     }
@@ -170,7 +172,7 @@ io.on('connection', (socket) => {
 
     if (room && currentRoomId) {
       const allReady = room.clients.every((client) => client.isReady === true);
-      if (allReady) {
+      if (allReady && room.clients?.length >= 2) {
         startTurn(currentRoomId);
         const roomStatusUpdate = {
           roomId: room.id,
@@ -185,11 +187,12 @@ io.on('connection', (socket) => {
     console.log(currentUser.name + ' recv: Shoot', data);
     const objectData = JSON.parse(data);
     const room = rooms.find((r) => r.id === currentRoomId);
-
+    const client = room?.clients.find((r) => r.name === currentUser.name);
     if (currentRoomId && room) {
       const powerShoot = {
         name: currentUser.name,
-        currentThrowForce: objectData.currentThrowForce,
+        currentThrowForce:
+          parseInt(objectData.currentThrowForce) + room.windforce * (client?.position === 'right' ? -1 : 1),
         maxThrowForce: objectData.maxThrowForce,
       };
       io.to(currentRoomId).emit('player-shoot', powerShoot);
@@ -239,16 +242,19 @@ io.on('connection', (socket) => {
 
           if (client.health <= 0) {
             clearInterval(room.countdown);
-
             const manageRoom: {
               statusRoom: statusRoom;
               playerNameLoser: string;
               playerNamePlaying: string | undefined;
+              windforce: number;
             } = {
               statusRoom: statusRoom.Ended,
               playerNameLoser: client.name,
               playerNamePlaying: undefined,
+              windforce: 0,
             };
+            room.windforce = 0;
+            room.statusRoom = statusRoom.Ended;
             io.to(room.id).emit('change-status-room', manageRoom);
 
             const roomStatusUpdate = {
@@ -336,6 +342,12 @@ io.on('connection', (socket) => {
       }
 
       updateStatusRoom(room, socket);
+
+      const roomUserCountUpdate = {
+        roomId: room.id,
+        newUserCount: room.clients.length,
+      };
+      socket.broadcast.emit('room-user-count-updated', roomUserCountUpdate);
     }
   });
 
@@ -347,35 +359,44 @@ io.on('connection', (socket) => {
 function startTurn(currentRoomId: string) {
   const room = rooms.find((r) => r.id === currentRoomId);
   if (!room) return;
+  if (room.statusRoom === statusRoom.Ended) return;
 
   // สลับตาผู้เล่น
   if (room?.currentlyPlayingPlayerName) {
     room.currentlyPlayingPlayerName = getNextPlayerName(room.currentlyPlayingPlayerName, room.clients);
 
     // Broadcast ว่าใครเป็นคนเล่น
+    const newWindforce = getRandomWindForce();
     const manageRoom: {
       statusRoom: statusRoom;
       playerNameLoser: string;
       playerNamePlaying: string | undefined;
+      windforce: number;
     } = {
       statusRoom: statusRoom.ChangingPlayerControl,
       playerNameLoser: '',
       playerNamePlaying: room.currentlyPlayingPlayerName,
+      windforce: newWindforce,
     };
+    room.windforce = newWindforce;
     io.to(currentRoomId).emit('change-status-room', manageRoom);
   } else {
     room.currentlyPlayingPlayerName = room.clients[0].name;
 
     // Broadcast ว่าใครเป็นคนเล่น
+    const newWindforce = getRandomWindForce();
     const manageRoom: {
       statusRoom: statusRoom;
       playerNameLoser: string;
       playerNamePlaying: string | undefined;
+      windforce: number;
     } = {
       statusRoom: statusRoom.Starting,
       playerNameLoser: '',
       playerNamePlaying: room.clients[0].name,
+      windforce: newWindforce,
     };
+    room.windforce = newWindforce;
     io.to(currentRoomId).emit('change-status-room', manageRoom);
 
     roomService.updateStatusRoom(room.id, 'Starting');
@@ -408,16 +429,22 @@ function updateStatusRoom(room: room, socket: Socket<DefaultEventsMap, DefaultEv
     clearInterval(room.countdown);
     room.statusRoom = statusRoom.Ended;
     room?.clients?.map((client) => {
+      const newWindforce = getRandomWindForce();
       const manageRoom: {
         statusRoom: statusRoom;
         playerNameLoser: string;
         playerNamePlaying: string | undefined;
+        windforce: number;
       } = {
         statusRoom: statusRoom.Ended,
         playerNameLoser: '',
         playerNamePlaying: undefined,
+        windforce: newWindforce,
       };
+      room.windforce = newWindforce;
       io.to(room.id).emit('change-status-room', manageRoom);
+
+      roomService.updateStatusRoom(room.id, 'Ended');
 
       const roomStatusUpdate = {
         roomId: room.id,
@@ -432,6 +459,7 @@ function updateStatusRoom(room: room, socket: Socket<DefaultEventsMap, DefaultEv
       roomId: room.id,
       statusRoom: statusRoom.Waiting,
     };
+    roomService.updateStatusRoom(room.id, 'Waiting');
     socket.broadcast.emit('room-status-updated', roomStatusUpdate);
   }
 }
@@ -445,6 +473,10 @@ function getNextPlayerName(currentPlayerName: string, clients: client[]) {
 
   // คืนค่าชื่อของผู้เล่นคนถัดไป
   return clients[nextIndex].name;
+}
+
+function getRandomWindForce() {
+  return Math.floor(Math.random() * 11) - 5; // สุ่มตัวเลขระหว่าง -5 ถึง 5
 }
 
 // Swagger UI

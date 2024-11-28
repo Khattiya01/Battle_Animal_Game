@@ -315,7 +315,7 @@ const MyGame = () => {
       <iframe
         src="/Game/index.html"
         width="100%"
-        height="90%"
+        height="100%"
         style={{
           border: "none",
           position: "absolute",
