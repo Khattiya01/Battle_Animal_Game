@@ -1,9 +1,5 @@
-import Link from "next/link";
+import Homepage from "./homepage/home";
 
 export default function Home() {
-  return (
-    <div>
-      <Link href={"/game"}> start game</Link>
-    </div>
-  );
+  return <Homepage />;
 }
