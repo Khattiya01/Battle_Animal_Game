@@ -35,6 +35,7 @@ export const streamVideoRouter: Router = (() => {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': 'video/mp4',
+        'ngrok-skip-browser-warning': 'any-value',
       });
 
       fileStream.pipe(res);
@@ -42,6 +43,7 @@ export const streamVideoRouter: Router = (() => {
       res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': 'video/mp4',
+        'ngrok-skip-browser-warning': 'any-value',
       });
       fs.createReadStream(filePath).pipe(res);
     }
