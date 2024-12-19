@@ -6,13 +6,12 @@ import CardGameItem from "@/app/homepage/components/cardGameItem";
 export default async function GamePage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
-  const gameName = slug;
+  const gameName = (await params).slug;
 
   const games = [{ name: "BattleAnimal", imageUrl: "/images/game1.png" }];
-  
+
   return (
     <Box className=" w-full h-full">
       <Flex direction={"column"} maxWidth={"1250px"} gap={"4"}>

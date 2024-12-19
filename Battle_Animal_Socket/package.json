@@ -5,7 +5,8 @@
   "main": "dist/src/index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty"
+    "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
+    "build": "tsc"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^6.3.1",
