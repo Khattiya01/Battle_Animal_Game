@@ -35,7 +35,9 @@ const MyGame = () => {
     if (socketRef.current) {
       const socket = socketRef.current;
 
-      const handleMessage = (event: any) => {
+      const handleMessage = (event: {
+        data: { type: string; value: string };
+      }) => {
         if (event.data.type === "GET_API_URL") {
           console.log("GET_API_URL");
           getAPIURL();
