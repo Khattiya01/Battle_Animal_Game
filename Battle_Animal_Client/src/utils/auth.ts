@@ -1,4 +1,4 @@
-// import { loginAction } from "@/actions/auth";
+import { loginAction } from "@/actions/auth";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -16,30 +16,28 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (credentials) {
-          // const fd = new FormData();
-          // fd.append("username", credentials.username);
-          // fd.append("password", credentials.password);
-          // const responseLogin = await loginAction(fd);
-          // const user = responseLogin.result?.user;
-          // const token = responseLogin.result?.token;
-          // if (responseLogin.success && user && token) {
-          //   return {
-          //     id: "1234",
-          //     accessToken: token,
-          //     refreshToken: token,
-          //     expires_in:
-          //       Math.floor(Date.now() / 1000) +
-          //       60 * parseInt(process.env.ACCESS_EXPIRATION_MINUTES ?? "60"),
-          //     userInfo: {
-          //       role: user.role,
-          //       term: user.term,
-          //     },
-          //   };
-          // } else {
-          //   throw new Error(responseLogin.message);
-          // }
-
-          throw new Error("");
+          const fd = new FormData();
+          fd.append("username", credentials.username);
+          fd.append("password", credentials.password);
+          const responseLogin = await loginAction(fd);
+          const user = responseLogin.result?.user;
+          const token = responseLogin.result?.token;
+          if (responseLogin.success && user && token) {
+            return {
+              id: "1234",
+              accessToken: token,
+              refreshToken: token,
+              expires_in:
+                Math.floor(Date.now() / 1000) +
+                60 * parseInt(process.env.ACCESS_EXPIRATION_MINUTES ?? "60"),
+              userInfo: {
+                role: user.role,
+                term: user.term,
+              },
+            };
+          } else {
+            throw new Error(responseLogin.message);
+          }
         } else {
           throw new Error("invalid-username-or-password");
         }
