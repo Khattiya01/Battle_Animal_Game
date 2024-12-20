@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: parseInt(process.env.NEXTAUTH_EXPIRATION_HOUR ?? "24") * 60 * 60,
+    maxAge: parseInt(process.env.NEXT_PUBLIC_AUTH_EXPIRATION_HOUR ?? "24") * 60 * 60,
   },
   jwt: {
     maxAge: 60 * 60,
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.expired =
           Math.floor(Date.now() / 1000) +
-          60 * 60 * parseInt(process.env.NEXTAUTH_EXPIRATION_HOUR ?? "24");
+          60 * 60 * parseInt(process.env.NEXT_PUBLIC_AUTH_EXPIRATION_HOUR ?? "24");
         token.userInfo = user.userInfo;
         token.accessToken = user.accessToken;
         return {
@@ -93,9 +93,9 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         maxAge:
-          parseInt(process.env.NEXTAUTH_EXPIRATION_HOUR ?? "24") * 60 * 60, // อายุของ cookies 1 วัน
+          parseInt(process.env.NEXT_PUBLIC_AUTH_EXPIRATION_HOUR ?? "24") * 60 * 60, // อายุของ cookies 1 วัน
       },
     },
   },
-  secret: process.env.NEXTAUTH_SECRET, // ตั้ง secret key สำหรับเข้ารหัส
+  secret: process.env.NEXT_PUBLIC_AUTH_SECRET || 'secret', // ตั้ง secret key สำหรับเข้ารหัส
 };
