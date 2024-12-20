@@ -12,10 +12,10 @@ export default async function middleware() {
 
   // Check if the user is authenticated (has an access token)
 
-  res.headers.append(
-    "Authorization",
-    `Bearer ${localStorage?.getItem("token") ?? ""}` || ""
-  );
+  // res.headers.append(
+  //   "Authorization",
+  //   `Bearer ${localStorage?.getItem("token") ?? ""}` || ""
+  // );
 
   //   console.log("accessToken" , accessToken)
   // res.headers.append('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version')

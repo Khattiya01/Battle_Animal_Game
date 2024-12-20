@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/v1/stream-video/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/v1/stream-video/:path*`
+        destination: `https://www.thaipedigree.com/static/game/:path*`
+        // destination: `${process.env.NEXT_PUBLIC_API_URL}/v1/stream-video/:path*`
       }
     ]
   },
