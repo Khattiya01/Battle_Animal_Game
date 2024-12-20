@@ -22,7 +22,8 @@ const CardGameItem = (props: CardGameItemProps) => {
         className="absolute top-0 left-0 w-full h-full object-cover hidden group-hover:block rounded-md"
       >
         <source
-          src={`${process.env.NEXT_PUBLIC_API_URL}/v1/stream-video/gojo-ultimate-skill3.mp4`}
+          src={`https://www.thaipedigree.com/static/game/gojo-ultimate-skill3.mp4`}
+          // src={`${process.env.NEXT_PUBLIC_API_URL}/v1/stream-video/gojo-ultimate-skill3.mp4`}
           type="video/mp4"
         />
       </video>
