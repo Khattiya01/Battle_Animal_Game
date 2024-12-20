@@ -9,7 +9,7 @@ import {
   Selectgame,
   updateGameSchema,
 } from "@/db/schemas";
-import { Box, Spinner, Text } from "@radix-ui/themes";
+import { Text } from "@radix-ui/themes";
 import ButtonOutline from "@/components/buttons/buttonOutline";
 import useToastStore, { typeStatusTaost } from "@/hooks/useToastStore";
 import { DialogComponent } from "@/components/alertDialogs/dialog.component";
@@ -17,9 +17,7 @@ import { BoxLoadingData } from "@/components/boxLoading/BoxLoadingData";
 import InputFormManage from "@/components/inputs/inputFormManage";
 import { createGameAction, updateGameAction } from "@/actions/games";
 import InputTextareaFormManage from "@/components/inputs/inputTextareaFormManage ";
-import UploadField from "@/components/uploadFIle/uploadField";
-import { blobToFile } from "@/types/file";
-import ListFileCardDragField from "@/components/uploadFIle/listFileCardDragField";
+// import UploadField from "@/components/uploadFIle/uploadField";
 
 type DialogAddGameProps = {
   dialogType?: "create" | "edit";
@@ -42,13 +40,10 @@ const DialogAddGame = ({
   const [isLoadingSubmit, setIsLoadingSubmit] = useState<boolean>(false);
   const [isLoadingData, setIsLoadingData] = useState<boolean>(false);
 
-  const LIMITFILE = 1;
-  const maxSizeFile = 5; // 20Mb
-  const [isLoadingUploadFile, setIsLoadingUploadFile] =
-    useState<boolean>(false);
-  const [openAlertFileSize, setOpenAlertFileSize] = useState<boolean>(false);
-  const [activeUploadFileID, setActiveUploadFileID] = useState<string>("");
-  const [fileDelete, setFileDelete] = useState<blobToFile[]>([]);
+  // const LIMITFILE = 1;
+  // const [isLoadingUploadFile, setIsLoadingUploadFile] =
+  //   useState<boolean>(false);
+  // const [activeUploadFileID, setActiveUploadFileID] = useState<string>("");
 
   // function
 
@@ -56,7 +51,7 @@ const DialogAddGame = ({
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
+    // watch,
     setValue,
     register,
   } = useForm<Insertgame>({
@@ -210,7 +205,7 @@ const DialogAddGame = ({
                   showLabel
                   required
                 />
-                <Box
+                {/* <Box
                   style={{ gap: 1, display: "flex", flexDirection: "column" }}
                 >
                   <label
@@ -273,13 +268,13 @@ const DialogAddGame = ({
                           />
                         </Box>
                       )}
-                      {/* {watch("image_url") && watch("image_url")?.length > 0 && (
+                      {watch("image_url") && watch("image_url")?.length > 0 && (
                         <ListFileCardDragField
                           files={watch("image_url")}
                           setFiles={(f) => setValue("image_url", f)}
                           onClickDelete={(f) => handleDeleteFileBanner(f)}
                         />
-                      )} */}
+                      )}
                     </Box>
                   )}
                   {errors.image_url?.message && (
@@ -287,7 +282,7 @@ const DialogAddGame = ({
                       {errors.image_url?.message}
                     </div>
                   )}
-                </Box>
+                </Box> */}
               </div>
             </div>
             <div className="flex gap-2 w-full sm:justify-end justify-center text-xl mt-4 ">

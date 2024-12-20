@@ -1,7 +1,13 @@
-import { Flex } from "@radix-ui/themes";
-import LoginForm from "./components/loginForm";
+"use client";
 
-export default async function LoginPage() {
+import { Flex } from "@radix-ui/themes";
+import dynamic from "next/dynamic";
+
+const LoginForm = dynamic(() => import("./components/loginForm"), {
+  ssr: false,
+});
+
+export default function LoginPage() {
   return (
     <Flex
       width={"100%"}
