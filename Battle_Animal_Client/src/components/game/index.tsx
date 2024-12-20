@@ -98,9 +98,9 @@ const MyGame = () => {
           // patchUpdateUserLeaveRoom({ id: event.data.value });
         }
       };
-      console.log("socket", socket)
+      console.log("socket", socket);
       window.addEventListener("message", handleMessage);
-      console.log("window.addEventListener : handleMessage")
+      console.log("window.addEventListener : handleMessage");
       return () => {
         window.removeEventListener("message", handleMessage);
       };
@@ -361,13 +361,15 @@ const MyGame = () => {
         style={{
           border: "none",
           position: "absolute",
-          top: "0",
-          left: "0",
-          right: "0",
-          bottom: "0",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
         allowFullScreen
         title="Unity Game"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="no-referrer"
       ></iframe>
     </div>
   );
