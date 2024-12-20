@@ -98,8 +98,9 @@ const MyGame = () => {
           // patchUpdateUserLeaveRoom({ id: event.data.value });
         }
       };
-
+      console.log("socket", socket)
       window.addEventListener("message", handleMessage);
+      console.log("window.addEventListener : handleMessage")
       return () => {
         window.removeEventListener("message", handleMessage);
       };

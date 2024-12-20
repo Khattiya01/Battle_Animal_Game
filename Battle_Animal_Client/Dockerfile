@@ -24,20 +24,20 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-ENV NEXT_PUBLIC_FRONTEND_URL="https://battleanimal.marketlandverse.com/"
+ENV NEXT_PUBLIC_FRONTEND_URL="https://battleanimal.marketlandverse.com"
 ENV NEXT_PUBLIC_API_URL="https://battleanimal-api.marketlandverse.com"
-ENV NEXT_PUBLIC_FRONTEND_IMAGE_URL="https://battleanimal.marketlandverse.com/"
+ENV NEXT_PUBLIC_FRONTEND_IMAGE_URL="https://battleanimal.marketlandverse.com"
 
 ENV NEXT_PUBLIC_AUTH_SECRET="l4Dwhk+jHlSGMogw+5wSmAiovVPIOPVqgX81HnUfyJ8="
 ENV NEXT_PUBLIC_AUTH_EXPIRATION_HOUR=1
-ENV NEXT_PUBLIC_AUTH_URL="https://battleanimal.marketlandverse.com/"
+ENV NEXT_PUBLIC_AUTH_URL="https://battleanimal.marketlandverse.com"
 # ENV NEXTAUTH_SECRET="l4Dwhk+jHlSGMogw+5wSmAiovVPIOPVqgX81HnUfyJ8="
 # ENV NEXTAUTH_EXPIRATION_HOUR=1
 # ENV NEXTAUTH_URL="https://battleanimal.marketlandverse.com/"
 ENV NEXT_PUBLIC_APP_ID="cf231045-cdd3-40b6-ab2a-3d70c22e71a2"
 ENV NEXT_PUBLIC_APP_KEY="8wK1qm4erJKuEhtVIk9DUn3Y1-Ok_kP4wcRYXqNhb-glux1hnWivKOXkmlTvY3Me"
 
-ENV JWT_SECRET="jwtsecrete"
+ENV JWT_SECRET="JWT_SECRET2024"
 ENV ACCESS_EXPIRATION_MINUTES=60
 ENV REFRESH_EXPIRATION_DAYS=1
 ENV VERSION="1.0.1"
