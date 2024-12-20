@@ -32,6 +32,7 @@
     "redis": "^4.6.13",
     "socket.io": "^4.7.4",
     "swagger-ui-express": "^5.0.0",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -62,7 +63,8 @@
     "supertest": "^6.3.4",
     "ts-jest": "^29.1.2",
     "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "typescript-transform-paths": "^3.5.2"
   },
   "lint-staged": {
     "*.{ts,js,json}": "npm run lint:fix"

@@ -4,13 +4,12 @@ import cors from 'cors';
 import { pino } from 'pino';
 import http from 'http';
 
-import { env } from '@common/utils/envConfig';
-import rateLimiter from '@common/middleware/rateLimiter';
-import errorHandler from '@common/middleware/errorHandler';
+import { env } from './common/utils/envConfig';
+import rateLimiter from './common/middleware/rateLimiter';
+import errorHandler from './common/middleware/errorHandler';
 import { userRouter } from '@modules/user/userRouter';
-import { openAPIRouter } from '@api-docs/openAPIRouter';
+import { openAPIRouter } from './api-docs/openAPIRouter';
 import { authRouter } from '@modules/auth/authRouter';
-import { initializeRedisClient } from '@common/middleware/redis';
 import { roomRouter } from '@modules/room/roomRouter';
 import { messageRouter } from '@modules/message/messageRouter';
 import { Server } from 'socket.io';

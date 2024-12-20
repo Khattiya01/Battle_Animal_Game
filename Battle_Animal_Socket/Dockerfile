@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 WORKDIR /usr/app
 
@@ -9,9 +9,10 @@ COPY tsconfig*.json ./
 
 RUN npm install
 RUN npx prisma generate
-RUN npm build
+# RUN npm run build
 
 ENV NODE_ENV=production
-EXPOSE 8080
+EXPOSE 8081
 
-CMD ["node", "dist/src/index.js"]
+# CMD ["node", "-r", "tsconfig-paths/register", "dist/src/index.js"]
+CMD ["npm", "run", "dev"]

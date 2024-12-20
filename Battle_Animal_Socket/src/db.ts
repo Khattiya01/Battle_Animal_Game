@@ -1,4 +1,4 @@
-import { env } from '@common/utils/envConfig';
+import { env } from './common/utils/envConfig';
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {

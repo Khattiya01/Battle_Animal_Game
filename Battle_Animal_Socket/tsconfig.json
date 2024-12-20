@@ -10,16 +10,23 @@
       "@src/*": ["src/*"]
     },
     "moduleResolution": "Node",
-    "outDir": "build",
+    "rootDir": ".",
+    "outDir": "./dist",
     "importsNotUsedAsValues": "remove",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noPropertyAccessFromIndexSignature": false,
     "skipLibCheck": true,
-    "ignoreDeprecations": "5.0"
+    "ignoreDeprecations": "5.0",
+    "resolveJsonModule": true,
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ]
   },
-  "extends": [],
-  "exclude": ["node_modules"],
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "files": [
+    "src/index.ts"
+  ]
 }
