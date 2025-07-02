@@ -12,13 +12,13 @@ const MyGame = () => {
   useEffect(() => {
     // Load Unity WebGL loader script
     const existingScript = document.querySelector(
-      'script[src="/game/build/unitywebgl.loader.js"]'
+      'script[src="/Game/Build/Build.loader.js"]'
     );
 
     if (!existingScript) {
       try {
         const script = document.createElement("script");
-        script.src = "/game/build/unitywebgl.loader.js";
+        script.src = "/Game/Build/Build.loader.js";
         script.async = true;
         document.body.appendChild(script);
 
@@ -35,10 +35,16 @@ const MyGame = () => {
     if (socketRef.current) {
       const socket = socketRef.current;
 
-      const handleMessage = (event: any) => {
+      const handleMessage = (event: {
+        data: { type: string; value: string };
+      }) => {
         if (event.data.type === "GET_API_URL") {
           console.log("GET_API_URL");
           getAPIURL();
+        }
+        if (event.data.type === "GET_FRONTEND_URL") {
+          console.log("GET_FRONTEND_URL");
+          getFrontendURL();
         }
         if (event.data.type === "GET_TOKEN") {
           console.log("GET_TOKEN");
@@ -57,6 +63,10 @@ const MyGame = () => {
           // setScene(event.data.roomId)
           // socket.emit("player-join-room", event.data.currentRoomId);
         }
+        if (event.data.type === "PLAYER_READY_ROOM") {
+          console.log("PLAYER_READY_ROOM", event.data.value);
+          socket.emit("player-ready-room", event.data.value);
+        }
         if (event.data.type === "PLAYER_JOINT_ROOM") {
           console.log("PLAYER_JOINT_ROOM", event.data.value);
           socket.emit("player-join-room", event.data.value);
@@ -69,6 +79,10 @@ const MyGame = () => {
         if (event.data.type === "PLAYER_SHOOT") {
           console.log("PLAYER_SHOOT", event.data.value);
           socket.emit("player-shoot", event.data.value);
+        }
+        if (event.data.type === "PLAYER_USE_SKILL") {
+          console.log("PLAYER_USE_SKILL", event.data.value);
+          socket.emit("player-use-skill", event.data.value);
         }
         if (event.data.type === "PLAYER_DECREASE_HEALTH") {
           console.log("PLAYER_DECREASE_HEALTH", event.data.value);
@@ -84,8 +98,9 @@ const MyGame = () => {
           // patchUpdateUserLeaveRoom({ id: event.data.value });
         }
       };
-
+      console.log("socket", socket)
       window.addEventListener("message", handleMessage);
+      console.log("window.addEventListener : handleMessage")
       return () => {
         window.removeEventListener("message", handleMessage);
       };
@@ -97,7 +112,11 @@ const MyGame = () => {
     const APIURL = process.env.NEXT_PUBLIC_API_URL;
 
     if (!socketRef.current) {
-      socketRef.current = io(APIURL); // Replace with your server URL
+      socketRef.current = io(APIURL, {
+        extraHeaders: {
+          "ngrok-skip-browser-warning": "69420",
+        },
+      });
       console.log("socket is connected", socketRef.current);
     }
 
@@ -106,6 +125,11 @@ const MyGame = () => {
     socket.on("room-added", (response) => {
       console.log(" recv: room-added" + JSON.stringify(response));
       AddRoom(JSON.stringify(response));
+    });
+
+    socket.on("room-status-updated", (response) => {
+      console.log(" recv: room-status-updated" + JSON.stringify(response));
+      RoomStatusUpdate(JSON.stringify(response));
     });
 
     socket.on("room-user-count-updated", (response) => {
@@ -128,6 +152,11 @@ const MyGame = () => {
       PlayerShoot(JSON.stringify(response));
     });
 
+    socket.on("player-use-skill", (response) => {
+      console.log(" recv: player-use-skill" + JSON.stringify(response));
+      PlayerUseSkill(JSON.stringify(response));
+    });
+
     socket.on("player-Decrease-health", (response) => {
       console.log(" recv: player-Decrease-health" + JSON.stringify(response));
       PlayerDecreaseHealth(JSON.stringify(response));
@@ -145,16 +174,23 @@ const MyGame = () => {
       ChangeStatusRoom(JSON.stringify(response));
     });
 
+    socket.on("countdown-room", (response) => {
+      CountdownRoom(JSON.stringify(response));
+    });
+
     return () => {
       // ทำการ cleanup listeners ตอนที่ component ถูก unmount
       socket.off("room-added");
+      socket.off("room-status-updated");
       socket.off("room-user-count-updated");
       socket.off("player-join-room");
       socket.off("other-player-joined");
       socket.off("player-shoot");
+      socket.off("player-use-skill");
       socket.off("player-Decrease-health");
       socket.off("other-player-disconnected");
       socket.off("change-status-room");
+      socket.off("countdown-room");
     };
   }, []);
 
@@ -163,6 +199,16 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "ADD_ROOM", value: value },
+        "*"
+      );
+    }
+  };
+
+  const RoomStatusUpdate = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "ROOM_STATUS_UPDATE", value: value },
         "*"
       );
     }
@@ -209,6 +255,16 @@ const MyGame = () => {
     }
   };
 
+  const PlayerUseSkill = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "PLAYER_USE_SKILL", value: value },
+        "*"
+      );
+    }
+  };
+
   const OtherPlayerDisconnected = (value: string) => {
     const iframe = document.querySelector("iframe");
     if (iframe) {
@@ -235,6 +291,17 @@ const MyGame = () => {
     if (iframe) {
       iframe.contentWindow?.postMessage(
         { type: "GET_API_URL", value: APIURL },
+        "*"
+      );
+    }
+  };
+
+  const getFrontendURL = () => {
+    const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "GET_FRONTEND_URL", value: FRONTEND_URL },
         "*"
       );
     }
@@ -275,12 +342,22 @@ const MyGame = () => {
     }
   };
 
+  const CountdownRoom = (value: string) => {
+    const iframe = document.querySelector("iframe");
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { type: "COUNTDOWN_ROOM", value: value },
+        "*"
+      );
+    }
+  };
+
   return (
-    <div className="w-screen h-screen relative">
+    <div className="w-full h-full relative">
       <iframe
-        src="/game/index.html"
+        src="/Game/index.html"
         width="100%"
-        height="90%"
+        height="100%"
         style={{
           border: "none",
           position: "absolute",
@@ -292,18 +369,6 @@ const MyGame = () => {
         allowFullScreen
         title="Unity Game"
       ></iframe>
-      <button
-        onClick={() => {
-          // if (socketRef.current?.connected) {
-          //   socketRef.current.emit("test-room", "test rooooooom");
-          // }
-          console.log("player-shoot");
-          PlayerShoot(JSON.stringify("player-shoot"));
-        }}
-        className=" absolute bottom-0"
-      >
-        test send to socket
-      </button>
     </div>
   );
 };

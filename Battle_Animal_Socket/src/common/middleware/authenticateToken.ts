@@ -1,10 +1,10 @@
 import {
   ResponseStatus,
   ServiceResponse,
-} from "@common/models/serviceResponse";
-import { env } from "@common/utils/envConfig";
-import { handleServiceResponse } from "@common/utils/httpHandlers";
-import { NextFunction, Request, Response } from "express";
+} from "./../../common/models/serviceResponse";
+import { env } from "./../../common/utils/envConfig";
+import { handleServiceResponse } from "./../../common/utils/httpHandlers";
+import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { verify } from "jsonwebtoken";
 

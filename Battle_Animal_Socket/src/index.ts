@@ -1,4 +1,4 @@
-import { env } from '@common/utils/envConfig';
+import { env } from './common/utils/envConfig';
 import { server as app, logger } from './server';
 
 const port = env.PORT;

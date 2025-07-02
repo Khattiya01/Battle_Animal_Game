@@ -1,40 +1,34 @@
-import { env } from "@common/utils/envConfig";
-import { RedisClientType } from "@redis/client";
-import { NextFunction, Request, Response } from "express";
-import hash from "object-hash";
-import {
-  RedisFunctions,
-  RedisModules,
-  RedisScripts,
-  SetOptions,
-  createClient,
-} from "redis";
+import { env } from '@common/utils/envConfig';
+import { RedisClientType } from '@redis/client';
+import { NextFunction, Request, Response } from 'express';
+import hash from 'object-hash';
+import { RedisFunctions, RedisModules, RedisScripts, SetOptions, createClient } from 'redis';
 
 // initialize the Redis client variable
 let redisClient:
   | RedisClientType<
       {
         graph: {
-          CONFIG_GET: typeof import("@redis/graph/dist/commands/CONFIG_GET");
-          configGet: typeof import("@redis/graph/dist/commands/CONFIG_GET");
-          CONFIG_SET: typeof import("@redis/graph/dist/commands/CONFIG_SET");
-          configSet: typeof import("@redis/graph/dist/commands/CONFIG_SET");
-          DELETE: typeof import("@redis/graph/dist/commands/DELETE");
-          delete: typeof import("@redis/graph/dist/commands/DELETE");
-          EXPLAIN: typeof import("@redis/graph/dist/commands/EXPLAIN");
-          explain: typeof import("@redis/graph/dist/commands/EXPLAIN");
-          LIST: typeof import("@redis/graph/dist/commands/LIST");
-          list: typeof import("@redis/graph/dist/commands/LIST");
-          PROFILE: typeof import("@redis/graph/dist/commands/PROFILE");
-          profile: typeof import("@redis/graph/dist/commands/PROFILE");
-          QUERY: typeof import("@redis/graph/dist/commands/QUERY"); // write data to the Redis cache
-          // write data to the Redis cache
-          query: typeof import("@redis/graph/dist/commands/QUERY");
-          RO_QUERY: typeof import("@redis/graph/dist/commands/RO_QUERY");
-          roQuery: typeof import("@redis/graph/dist/commands/RO_QUERY");
-          SLOWLOG: typeof import("@redis/graph/dist/commands/SLOWLOG"); // try to get the cached response from redis
-          // try to get the cached response from redis
-          slowLog: typeof import("@redis/graph/dist/commands/SLOWLOG");
+          // CONFIG_GET: typeof import("@redis/graph/dist/commands/CONFIG_GET");
+          // configGet: typeof import("@redis/graph/dist/commands/CONFIG_GET");
+          // CONFIG_SET: typeof import("@redis/graph/dist/commands/CONFIG_SET");
+          // configSet: typeof import("@redis/graph/dist/commands/CONFIG_SET");
+          // DELETE: typeof import("@redis/graph/dist/commands/DELETE");
+          // delete: typeof import("@redis/graph/dist/commands/DELETE");
+          // EXPLAIN: typeof import("@redis/graph/dist/commands/EXPLAIN");
+          // explain: typeof import("@redis/graph/dist/commands/EXPLAIN");
+          // LIST: typeof import("@redis/graph/dist/commands/LIST");
+          // list: typeof import("@redis/graph/dist/commands/LIST");
+          // PROFILE: typeof import("@redis/graph/dist/commands/PROFILE");
+          // profile: typeof import("@redis/graph/dist/commands/PROFILE");
+          // QUERY: typeof import("@redis/graph/dist/commands/QUERY"); // write data to the Redis cache
+          // // write data to the Redis cache
+          // query: typeof import("@redis/graph/dist/commands/QUERY");
+          // RO_QUERY: typeof import("@redis/graph/dist/commands/RO_QUERY");
+          // roQuery: typeof import("@redis/graph/dist/commands/RO_QUERY");
+          // SLOWLOG: typeof import("@redis/graph/dist/commands/SLOWLOG"); // try to get the cached response from redis
+          // // try to get the cached response from redis
+          // slowLog: typeof import("@redis/graph/dist/commands/SLOWLOG");
         };
         json: {
           ARRAPPEND: typeof import("@redis/json/dist/commands/ARRAPPEND");
@@ -320,7 +314,7 @@ export async function initializeRedisClient() {
   let redisURL = env.REDIS_URI;
   if (redisURL) {
     // create the Redis client object
-    redisClient = createClient({ url: redisURL }).on("error", (e) => {
+    redisClient = createClient({ url: redisURL }).on('error', (e) => {
       console.error(`Failed to create the Redis client with error:`);
       console.error(e);
     });
@@ -354,11 +348,7 @@ function isRedisWorking() {
   return !!redisClient?.isOpen;
 }
 
-async function writeData(
-  key: string,
-  data: any,
-  options: SetOptions | undefined
-) {
+async function writeData(key: string, data: any, options: SetOptions | undefined) {
   if (isRedisWorking()) {
     try {
       // write data to the Redis cache
@@ -406,7 +396,7 @@ export function redisCachingMiddleware(
           res.send = oldSend;
 
           // cache the response only if it is successful
-          if (res.statusCode.toString().startsWith("2")) {
+          if (res.statusCode.toString().startsWith('2')) {
             writeData(key, data, options);
           }
           return res.send(data);

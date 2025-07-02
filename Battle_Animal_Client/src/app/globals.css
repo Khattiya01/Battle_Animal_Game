@@ -1,21 +1,318 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@400;600;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
 }
 
+html * {
+  font-family: "IBM Plex Sans Thai", sans-serif !important;
+  font-size: 16px;
+}
+
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "IBM Plex Sans Thai", sans-serif !important;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .TabsRoot {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .TabsList {
+    flex-shrink: 0;
+    display: flex;
+  }
+
+  .TabsTrigger {
+    font-family: inherit;
+    background-color: white;
+    padding: 0 20px;
+    height: 45px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px !important;
+    line-height: 1;
+    color: var(--mauve-11);
+    user-select: none;
+  }
+  .TabsTrigger:first-child {
+    border-top-left-radius: 6px;
+  }
+  .TabsTrigger:last-child {
+    border-top-right-radius: 6px;
+  }
+  .TabsTrigger:hover {
+    color: var(--violet-11);
+  }
+  .TabsTrigger[data-state="active"] {
+    color: var(--violet-11);
+    font-size: 18px;
+    font-weight: 600 !important;
+  }
+  .TabsTrigger:focus {
+    position: relative;
+  }
+
+  .TabsContent {
+    flex-grow: 1;
+    background-color: white;
+    outline: none;
+  }
+  .swiper-button-prev::after,
+  .swiper-button-next::after {
+    display: none;
+  }
+
+  .text-overflow-line-clamp-3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .text-overflow-line-clamp-2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .text-overflow-line-clamp-1 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .rt-TextFieldRoot {
+    --text-field-selection-color: red !important;
+    --text-field-focus-color: red !important;
+  }
+  .rt-TextFieldRoot:where(:has(.rt-TextFieldInput:focus)) {
+    outline: 2px solid white !important;
+  }
+
+  .custom-pre {
+    white-space: pre-wrap; /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
+  }
+
+  .shadow-navbar {
+    box-shadow: 4px 2px 12px 0px #0a0a100f;
+  }
+
+  .text-require {
+    width: 100%;
+    display: flex;
+    color: #ff4d4f;
+    margin-top: 4px;
+    font-size: 12px;
+  }
+
+  .no-spinners::-webkit-inner-spin-button,
+  .no-spinners::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Optionally, you can add styles to better fit your design */
+  .no-spinners {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  .AlertDialogContent {
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+      hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    /* max-width: 500px; */
+    /* max-height: 85vh; */
+    /* padding: 25px; */
+    animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .AlertDialogContent:focus {
+    outline: none;
+  }
+
+  .AlertDialogTitle {
+    margin: 0;
+    color: var(--mauve-12);
+    font-size: 17px;
+    font-weight: 500;
+  }
+
+  .AlertDialogDescription {
+    margin-bottom: 20px;
+    color: var(--mauve-11);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  @keyframes contentShow {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -48%) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #a6b0bf;
+    width: 4px;
+    border-radius: 8px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a6b0bf;
+  }
+
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px white inset; /* Change to your desired color */
+    box-shadow: 0 0 0 30px white inset; /* Change to your desired color */
+    background-color: transparent
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

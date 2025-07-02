@@ -6,7 +6,7 @@ import {
 import { userService } from "@modules/user/userService";
 import { CreateUserSchema, UserSchema } from "@modules/user/userModel";
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
-import { createApiResponse } from "@api-docs/openAPIResponseBuilders";
+import { createApiResponse } from "./../../api-docs/openAPIResponseBuilders";
 import { LoginSchema } from "./authModel";
 import { authService } from "./authService";
 import { sendMail } from "@common/utils/sendMail";

@@ -1,7 +1,7 @@
 import { MessageSchema } from '@modules/message/messageModel';
 import { z } from 'zod';
 
-const RoomStatusEnum = z.enum(["ACTIVE", "FULL", "CLOSED", "IN_GAME"]);
+const RoomStatusEnum = z.enum(["Waiting", "Starting", "Ended"]);
 
 export type TypeRoom = z.infer<typeof RoomSchema>;
 export const RoomSchema = z.object({
@@ -30,7 +30,7 @@ export type TypeUpdateRoom = z.infer<typeof UpdateRoomSchema>;
 export const UpdateRoomSchema = z.object({
   body: z.object({
     roomName: z.string().optional(), // อนุญาตให้เว้นได้ (ไม่อัปเดต)
-    status: z.enum(["ACTIVE", "FULL", "CLOSED", "IN_GAME"]).optional(), // สถานะของห้อง
+    status: z.enum(["Waiting", "Starting", "Ended"]).optional(), // สถานะของห้อง
     isPrivate: z.boolean().optional(), // ตั้งค่าความเป็น private
     currentUsers: z.number().min(1).optional(), // จำนวนผู้เล่นสูงสุดในห้อง
     maxUsers: z.number().min(1).optional(), // จำนวนผู้เล่นสูงสุดในห้อง

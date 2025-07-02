@@ -1,12 +1,5 @@
-import React from "react";
-import GameScene from "./components/gamePage";
+import { redirect } from "next/navigation";
 
-const GamePage = () => {
-  return (
-    <div>
-      <GameScene />
-    </div>
-  );
-};
-
-export default GamePage;
+export default async function GamesPage() {
+  await redirect("/");
+}
